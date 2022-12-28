@@ -34,9 +34,13 @@ def charts(paternal_result, maternal_result):
     st.plotly_chart(fig, theme="streamlit")
 
 
-def compare_image(img_father, img_mother, img_child):
-    distance_metrics = "cosine"
-    model_name = "Facenet"
+def compare_image(
+    img_father,
+    img_mother,
+    img_child,
+    distance_metrics: str = "cosine",
+    model_name: str = "Facenet",
+):
 
     st.subheader("These are the uploaded pictures")
     st.image(
@@ -87,5 +91,28 @@ img_father = st.file_uploader("Upload an image for father", type=["png", "jpg", 
 img_mother = st.file_uploader("Upload an image for mother", type=["png", "jpg", "jpeg"])
 img_child = st.file_uploader("Upload an image for child", type=["png", "jpg", "jpeg"])
 
+distance_metrics = st.sidebar.radio(
+    "Distance Metrics", ["cosine", "euclidean", "euclidean_l2"], index=0
+)
+model = st.sidebar.selectbox(
+    "Image Models",
+    [
+        "Facenet",
+        "VGG-Face",
+        "Facenet512",
+        "OpenFace",
+        "DeepFace",
+        "DeepID",
+        "ArcFace",
+        "Dlib",
+        "SFace",
+    ],
+)
 if img_father is not None and img_mother is not None and img_child is not None:
-    compare_image(img_father, img_mother, img_child)
+    compare_image(
+        img_father,
+        img_mother,
+        img_child,
+        distance_metrics=distance_metrics,
+        model_name=model,
+    )
