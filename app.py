@@ -12,13 +12,18 @@ def load_img(img):
     return image_arr
 
 
-def charts(paternal_result, maternal_result):
+def charts(paternal_result, maternal_result, distance_metrics: str):
+
     data = {
         "parent": ["Father", "Mother"],
         "feature": ["face", "face"],
         "similarity": [
-            -1 + paternal_result["distance"],
-            1 - maternal_result["distance"],
+            -1 + paternal_result["distance"]
+            if distance_metrics == "cosine"
+            else 1.0 / (1 + paternal_result["distance"]),
+            1 - maternal_result["distance"]
+            if distance_metrics == "cosine"
+            else 1.0 / (1 + maternal_result["distance"]),
         ],
     }
     chart_data = pd.DataFrame(data=data)
@@ -43,11 +48,13 @@ def compare_image(
 ):
 
     st.subheader("These are the uploaded pictures")
-    st.image(
-        [img_father, img_child, img_mother],
-        caption=["Father", "Child", "Mother"],
-        width=200,
-    )
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.image(img_father, caption="Father", width=200)
+    with col2:
+        st.image(img_child, caption="Child", width=200)
+    with col3:
+        st.image(img_mother, caption="Mother", width=200)
     with st.spinner("Analyzing the images..."):
         try:
             paternal_result = DeepFace.verify(
@@ -75,7 +82,7 @@ def compare_image(
                 "Something wrong with either the mother/child picture. Upload them again"
             )
 
-    charts(paternal_result, maternal_result)
+    charts(paternal_result, maternal_result, distance_metrics=distance_metrics)
 
     if maternal_result["distance"] < paternal_result["distance"]:
         st.success("The child looks more like mother.")
@@ -108,6 +115,8 @@ model = st.sidebar.selectbox(
         "SFace",
     ],
 )
+url = "https://github.com/serengil/deepface"
+st.sidebar.markdown(f"This app uses [deepface library]({url}).")
 if img_father is not None and img_mother is not None and img_child is not None:
     compare_image(
         img_father,
