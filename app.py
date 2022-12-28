@@ -2,12 +2,36 @@ import streamlit as st
 from PIL import Image
 from deepface import DeepFace
 import numpy as np
+import pandas as pd
+import plotly.express as px
 
 
 def load_img(img):
     image_loaded = Image.open(img)
     image_arr = np.array(image_loaded.convert("RGB"))
     return image_arr
+
+
+def charts(paternal_result, maternal_result):
+    data = {
+        "parent": ["Father", "Mother"],
+        "feature": ["face", "face"],
+        "similarity": [
+            -1 + paternal_result["distance"],
+            1 - maternal_result["distance"],
+        ],
+    }
+    chart_data = pd.DataFrame(data=data)
+    fig = px.bar(
+        chart_data,
+        x="similarity",
+        y="feature",
+        color="parent",
+        title="Similarity",
+        orientation="h",
+        height=300,
+    )
+    st.plotly_chart(fig, theme="streamlit")
 
 
 def compare_image(img_father, img_mother, img_child):
@@ -47,10 +71,7 @@ def compare_image(img_father, img_mother, img_child):
                 "Something wrong with either the mother/child picture. Upload them again"
             )
 
-    st.bar_chart()
-    st.subheader(f"These are the {distance_metrics} distances:")
-    st.write(f"Father-child: {paternal_result['distance']}")
-    st.write(f"Mother-child: {maternal_result['distance']}")
+    charts(paternal_result, maternal_result)
 
     if maternal_result["distance"] < paternal_result["distance"]:
         st.success("The child looks more like mother.")
