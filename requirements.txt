@@ -1,3 +1,5 @@
 deepface
-streamit
+streamit==1.13
 pre-commit
+protobuf~=3.19.0
+lotly==5.11.0
