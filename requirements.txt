@@ -1,5 +1,5 @@
 deepface
-streamit=1.13
+streamit == 1.13
 pre-commit
 protobuf~=3.19.0
-plotly=5.11.0
+plotly == 5.11.0
