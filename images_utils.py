@@ -98,6 +98,18 @@ def show_img(sample: bool = False) -> Tuple:
 
 
 def distance2score(d1: float, d2: float, distance_metrics: str) -> List:
+    """
+    This function turn the distance metrics to a scaled score 0-100,
+    which represent a rough estimate of the similiarity.
+
+    Args:
+        d1 (float): distance 1
+        d2 (float): distance 2
+        distance_metrics (str): name of the distance metrics
+
+    Returns:
+        List: the scaled scores
+    """
     if distance_metrics == "cosine":
         s1 = 1.0 - d1
         s2 = 1.0 - d2

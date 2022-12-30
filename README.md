@@ -1,6 +1,6 @@
 # FacialSimilarity
 
-A [Streamlit](https://streamlit.io/)🎈 to compare facial similarity of family members. Whom does your child look like?
+A [Streamlit](https://streamlit.io/)🎈app to compare facial similarity of family members. Whom does your child look like?
 
 It is powered by the deep learning library [deepface](https://github.com/serengil/deepface) which detect and compare the facial images. Simply upload the pictures of the family members (support `png`, `jpeg`, `jpg` format) and let the app analyse the images for you!
 
