@@ -34,6 +34,7 @@ def show_img(sample: bool = False) -> Tuple:
     """
     # Display the uploaded images
     st.subheader("Upload pictures of your family to get started!")
+    st.write("hint: For best results, use headshots.")
 
     col1, col2, col3 = st.columns(3)
     if sample:
@@ -77,7 +78,7 @@ def charts(paternal_result: Dict, maternal_result: Dict, distance_metrics: str):
         maternal_result (Dict): mother analysis result
         distance_metrics (str): name of the distance metrics used
     """
-
+    # TODO: turn metrics into [0-100] scale
     data = {
         "parent": ["Father", "Mother"],
         "feature": ["face", "face"],
@@ -115,6 +116,7 @@ def run_deepface(img1: any, img2: any, model_name: str, distance_metrics: str) -
 
     Returns:
         result (Dict): result of the analysis
+    # TODO: calculate similarity for specific face features, e.g. eyes
     """
     try:
         result = DeepFace.verify(
