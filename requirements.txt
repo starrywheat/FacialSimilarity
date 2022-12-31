@@ -4,3 +4,5 @@ streamlit==1.13
 protobuf~=3.19
 plotly==5.11.0
 pandas
+face-recognition
+sreamlit-analytics
