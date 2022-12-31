@@ -17,7 +17,7 @@ with st.sidebar:
     st.warning("Change the following settings only if you understand what they are!")
     distance_metrics = st.radio(
         "Distance Metrics",
-        ["cosine", "euclidean", "euclidean_l2"],
+        ["cosine", "euclidean"],
         index=0,
         help="Cosine: Cosine distance which measure the angular distance between the images.\nEucliean: distance between 2 images in Euclidean space. ",
     )
@@ -26,8 +26,9 @@ with st.sidebar:
         [
             "Facenet",
             "VGG-Face",
-            "Facenet512",
+            "ArcFace",
         ],
+        help="Face recognition models provided by deepface. These are the 3 top performing models in this task.",
     )
     url = "https://github.com/serengil/deepface"
     st.markdown(f"This app uses [deepface library]({url}).")
