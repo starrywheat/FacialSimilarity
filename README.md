@@ -4,17 +4,13 @@ A [Streamlit](https://streamlit.io/)🎈app to compare facial similarity of fami
 
 It is powered by the deep learning library [deepface](https://github.com/serengil/deepface) which detect and compare the facial images. Simply upload the pictures of the family members (support `png`, `jpeg`, `jpg` format) and let the app analyse the images for you!
 
-## Installation
+## Running locally in Docker
+This app uses Streamlit (you will install this library using the previous step) and deepface library. It is best to run it with Docker so that the neccessary plugins and libraries are installed. To build and run it in Docker:
 ```bash
-pip install -r requirements.txt
-```
-
-## Running locally
-This app uses Streamlit (you will install this library using the previous step). Once the neccessary python libraries are installed, then run the following in your terminal
-```bash
-streamlit run app.py
+docker build -t streamlit_app .
+docker run streamlit_app -p 8501:8501
 ```
 A new window will pop up in the browser to show you the app. Otherwise, go to `http://localhost:8501` in your browser to access the app.
 
 ## Run in on cloud
-This app is deployed in Streamlit Cloud, you can access it [here] (https://starrywheat-deepface-app-sj1pvn.streamlit.app)
+This app is deployed in Streamlit Cloud, you can access it [here] (https://starrywheat-facialsimilarity-app-l72xzs.streamlit.app)

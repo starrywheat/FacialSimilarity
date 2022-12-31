@@ -14,8 +14,12 @@ if "clicks" not in st.session_state:
 
 # Display settings in sidebar
 with st.sidebar:
+    st.warning("Change the following settings only if you understand what they are!")
     distance_metrics = st.radio(
-        "Distance Metrics", ["cosine", "euclidean", "euclidean_l2"], index=0
+        "Distance Metrics",
+        ["cosine", "euclidean", "euclidean_l2"],
+        index=0,
+        help="Cosine: Cosine distance which measure the angular distance between the images.\nEucliean: distance between 2 images in Euclidean space. ",
     )
     model = st.selectbox(
         "Image Models",
@@ -23,12 +27,6 @@ with st.sidebar:
             "Facenet",
             "VGG-Face",
             "Facenet512",
-            "OpenFace",
-            "DeepFace",
-            "DeepID",
-            "ArcFace",
-            "Dlib",
-            "SFace",
         ],
     )
     url = "https://github.com/serengil/deepface"
