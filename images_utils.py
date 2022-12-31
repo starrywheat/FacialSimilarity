@@ -145,7 +145,7 @@ def charts(paternal_result: Dict, maternal_result: Dict, distance_metrics: str):
         "similarity": simscore,
     }
     chart_data = pd.DataFrame(data=data)
-    st.dataframe(chart_data)
+
     fig = px.bar(
         chart_data,
         x="similarity",
