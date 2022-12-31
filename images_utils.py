@@ -1,12 +1,9 @@
-from deepface import DeepFace
-from PIL import Image
 import numpy as np
-from typing import Dict
-from typing import Tuple
-from typing import List
-import streamlit as st
 import pandas as pd
 import plotly.express as px
+import streamlit as st
+from deepface import DeepFace
+from PIL import Image
 
 
 def load_img(img: any) -> np.array:
@@ -21,7 +18,7 @@ def load_img(img: any) -> np.array:
     return image_arr
 
 
-def run_deepface(img1: any, img2: any, model_name: str, distance_metrics: str) -> Dict:
+def run_deepface(img1: any, img2: any, model_name: str, distance_metrics: str) -> dict:
     """
     This function use deepface.verify to compare the img1 and img2 to get similarity
 
@@ -32,7 +29,7 @@ def run_deepface(img1: any, img2: any, model_name: str, distance_metrics: str) -
         distance_metrics (str): name of the distance metrics
 
     Returns:
-        result (Dict): result of the analysis
+        result (dict): result of the analysis
     # TODO: calculate similarity for specific face features, e.g. eyes
     """
     try:
@@ -48,7 +45,7 @@ def run_deepface(img1: any, img2: any, model_name: str, distance_metrics: str) -
         return None
 
 
-def show_img(sample: bool = False) -> Tuple:
+def show_img(sample: bool = False) -> tuple:
     """
     This function displays the upload and loaded images.
     When the app first load, it will display sample family photos (Beckham family)
@@ -100,7 +97,7 @@ def show_img(sample: bool = False) -> Tuple:
     return img_father, img_mother, img_child
 
 
-def distance2score(d1: float, d2: float, distance_metrics: str) -> List:
+def distance2score(d1: float, d2: float, distance_metrics: str) -> list:
     """
     This function turn the distance metrics to a scaled score 0-100,
     which represent a rough estimate of the similiarity.
@@ -111,7 +108,7 @@ def distance2score(d1: float, d2: float, distance_metrics: str) -> List:
         distance_metrics (str): name of the distance metrics
 
     Returns:
-        List: the scaled scores
+        list: the scaled scores
     """
     if distance_metrics == "cosine":
         s1 = 1.0 - d1
@@ -126,13 +123,13 @@ def distance2score(d1: float, d2: float, distance_metrics: str) -> List:
     return [score1, score2]
 
 
-def charts(paternal_result: Dict, maternal_result: Dict, distance_metrics: str):
+def charts(paternal_result: dict, maternal_result: dict, distance_metrics: str):
     """
     This function create a bar chart based on the analysis result
 
     Args:
-        paternal_result (Dict): father analysis result
-        maternal_result (Dict): mother analysis result
+        paternal_result (dict): father analysis result
+        maternal_result (dict): mother analysis result
         distance_metrics (str): name of the distance metrics used
     """
     simscore = distance2score(
@@ -164,7 +161,7 @@ def compare_image(
     img_child: any,
     distance_metrics: str = "cosine",
     model_name: str = "Facenet",
-) -> Tuple:
+) -> tuple:
     """
     This function run analysis to compare the parent-child images.
     After successful run of the comparisons, this function also plot a bar chart
