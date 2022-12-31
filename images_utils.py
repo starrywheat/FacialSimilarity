@@ -63,14 +63,17 @@ def show_img(sample: bool = False) -> Tuple:
     # Display the uploaded images
     st.subheader("Upload pictures of your family to get started!")
     st.write("hint: For best results, use headshots.")
+    st.write("This app doesn't store any your uploaded pictures.")
 
     col1, col2, col3 = st.columns(3)
     if sample:
         img_father = "data/father.jpeg"
         img_child = "data/child.jpeg"
         img_mother = "data/mother.jpeg"
+        credit = " (Credits: IMDB)"
     else:
         img_father, img_child, img_mother = None, None, None
+        credit = ""
 
     with col1:
         if img_father is None:
@@ -78,21 +81,21 @@ def show_img(sample: bool = False) -> Tuple:
                 "Upload an image for father 👨", type=["png", "jpg", "jpeg"]
             )
         if img_father is not None:
-            st.image(img_father, caption="Father", width=200)
+            st.image(img_father, caption="Father" + credit, width=200)
     with col2:
         if img_child is None:
             img_child = st.file_uploader(
                 "Upload an image for child 🧒👧", type=["png", "jpg", "jpeg"]
             )
         if img_child is not None:
-            st.image(img_child, caption="Child", width=200)
+            st.image(img_child, caption="Child" + credit, width=200)
     with col3:
         if img_mother is None:
             img_mother = st.file_uploader(
                 "Upload an image for mother 👩", type=["png", "jpg", "jpeg"]
             )
         if img_mother is not None:
-            st.image(img_mother, caption="Mother", width=200)
+            st.image(img_mother, caption="Mother" + credit, width=200)
 
     return img_father, img_mother, img_child
 
