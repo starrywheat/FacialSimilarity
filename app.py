@@ -36,8 +36,13 @@ with st.sidebar:
         ],
         help="Face recognition models provided by deepface. These are the 3 top performing models in this task.",
     )
-    url = "https://github.com/serengil/deepface"
-    st.markdown(f"This app uses [deepface library]({url}).")
+    url_df = "https://github.com/serengil/deepface"
+    url_ff = (
+        "https://face-recognition.readthedocs.io/en/latest/readme.html#installation"
+    )
+    st.markdown(
+        f"This app uses [deepface library]({url_df}) and [facial_recongition]({url_ff})."
+    )
 
 click = st.button("Try it yourself.", on_click=add_click)
 
