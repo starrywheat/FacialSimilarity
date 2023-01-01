@@ -5,4 +5,4 @@ protobuf~=3.19
 plotly==5.11.0
 pandas
 dlib-bin
-face_recognition
+# face_recognition
