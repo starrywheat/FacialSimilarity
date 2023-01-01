@@ -3,46 +3,73 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from deepface import DeepFace
+from deepface.commons import distance as dst
 from PIL import Image
 
+from facial_feature import crop_img
+from facial_feature import detect_facial_landmarks
+from facial_feature import load_img
 
-def load_img(img: any) -> np.array:
+
+def run_deepface(
+    img1: any, img2: any, feature: str, model_name: str, distance_metrics: str
+) -> dict:
     """
-    This function loads the uploaded img obj and turn to np.array
-
-    Returns:
-        img_arr (np.array): img in numpy array
-    """
-    image_loaded = Image.open(img)
-    image_arr = np.array(image_loaded.convert("RGB"))
-    return image_arr
-
-
-def run_deepface(img1: any, img2: any, model_name: str, distance_metrics: str) -> dict:
-    """
-    This function use deepface.verify to compare the img1 and img2 to get similarity
+    This function use deepface.verify (whole face) or deepface.represent (facial features)
+    to compare the img1 and img2 to get similarity
 
     Args:
         img1 (any): image 1
         img2 (any): image 2
+        feature (str): name of the facial feature
         model_name (str): name of the deepL model for factial detection
         distance_metrics (str): name of the distance metrics
 
     Returns:
         result (dict): result of the analysis
-    # TODO: calculate similarity for specific face features, e.g. eyes
     """
-    try:
-        result = DeepFace.verify(
-            img1_path=load_img(img1),
-            img2_path=load_img(img2),
-            model_name=model_name,
-            detector_backend="mtcnn",
-            distance_metric=distance_metrics,
-        )
-        return result
-    except ValueError:
-        return None
+    if feature == "whole face":
+        try:
+            result = DeepFace.verify(
+                img1_path=img1,
+                img2_path=img2,
+                model_name=model_name,
+                detector_backend="mtcnn",
+                distance_metric=distance_metrics,
+            )
+            return result
+        except ValueError:
+            return None
+    else:
+        try:
+            img1_representation = DeepFace.represent(
+                img1,
+                enforce_detection=False,
+                model_name=model_name,
+                detector_backend="mtcnn",
+            )
+            img2_representation = DeepFace.represent(
+                img2,
+                enforce_detection=False,
+                model_name=model_name,
+                detector_backend="mtcnn",
+            )
+            if distance_metrics == "cosine":
+                distance = dst.findCosineDistance(
+                    img1_representation, img2_representation
+                )
+            elif distance_metrics == "euclidean":
+                distance = dst.findEuclideanDistance(
+                    img1_representation, img2_representation
+                )
+            elif distance_metrics == "euclidean_l2":
+                distance = dst.findEuclideanDistance(
+                    dst.l2_normalize(img1_representation),
+                    dst.l2_normalize(img2_representation),
+                )
+            return {"distance": np.float64(distance)}
+        except ValueError:
+            return None
 
 
 def show_img(sample: bool = False) -> tuple:
@@ -67,7 +94,7 @@ def show_img(sample: bool = False) -> tuple:
         img_father = "data/father.jpeg"
         img_child = "data/child.jpeg"
         img_mother = "data/mother.jpeg"
-        credit = " (Credits: IMDB)"
+        credit = " (Credits: The Guardian)"
     else:
         img_father, img_child, img_mother = None, None, None
         credit = ""
@@ -123,25 +150,24 @@ def distance2score(d1: float, d2: float, distance_metrics: str) -> list:
     return [score1, score2]
 
 
-def charts(paternal_result: dict, maternal_result: dict, distance_metrics: str):
+def charts(deepface_results: dict):
     """
     This function create a bar chart based on the analysis result
 
     Args:
-        paternal_result (dict): father analysis result
-        maternal_result (dict): mother analysis result
+        deepface_results (dict): deepface analysis result
         distance_metrics (str): name of the distance metrics used
     """
-    simscore = distance2score(
-        paternal_result["distance"], maternal_result["distance"], distance_metrics
-    )
-    data = {
-        "parent": ["Father", "Mother"],
-        "feature": ["face", "face"],
-        "distance": [paternal_result["distance"], maternal_result["distance"]],
-        "similarity": simscore,
+
+    chart_data = pd.DataFrame(data=deepface_results)
+
+    feature_emoji = {
+        "nose": "nose 👃",
+        "eyes": "eyes 👀",
+        "mouth": "mouth 👄",
+        "whole face": "whole face 😐",
     }
-    chart_data = pd.DataFrame(data=data)
+    chart_data["feature"] = chart_data["feature"].apply(lambda x: feature_emoji[x])
 
     fig = px.bar(
         chart_data,
@@ -155,13 +181,120 @@ def charts(paternal_result: dict, maternal_result: dict, distance_metrics: str):
     st.plotly_chart(fig, theme="streamlit")
 
 
-def compare_image(
+def compare_whole_face(
     img_father: any,
     img_mother: any,
     img_child: any,
     distance_metrics: str = "cosine",
     model_name: str = "Facenet",
-) -> tuple:
+) -> list:
+
+    results = []
+    feature = "whole face"
+    # whole face
+    print("Running on whole face")
+    paternal_result = run_deepface(
+        load_img(img_father), load_img(img_child), feature, model_name, distance_metrics
+    )
+    maternal_result = run_deepface(
+        load_img(img_mother), load_img(img_child), feature, model_name, distance_metrics
+    )
+    simscore = distance2score(
+        paternal_result["distance"], maternal_result["distance"], distance_metrics
+    )
+    results.append(
+        {
+            "parent": "Father",
+            "feature": feature,
+            "similarity": simscore[0],
+            "distance": paternal_result["distance"],
+        }
+    )
+    results.append(
+        {
+            "parent": "Mother",
+            "feature": feature,
+            "similarity": simscore[1],
+            "distance": maternal_result["distance"],
+        }
+    )
+    return results
+
+
+def compare_facial_features(
+    img_father: any,
+    img_mother: any,
+    img_child: any,
+    features: list,
+    distance_metrics: str = "cosine",
+    model_name: str = "Facenet",
+):
+    results = []
+    if features != []:
+        # Detect the feature landmarks
+        facial_landmarks_father = detect_facial_landmarks(img_father)
+        facial_landmarks_mother = detect_facial_landmarks(img_mother)
+        facial_landmarks_child = detect_facial_landmarks(img_child)
+
+        # Get cropped image of the feature
+        for feature in features:
+            print(f"Running on {feature}")
+            cropped_father = crop_img(
+                Image.open(img_father), facial_landmarks_father[0], feature=feature
+            )
+            cropped_mother = crop_img(
+                Image.open(img_mother), facial_landmarks_mother[0], feature=feature
+            )
+            cropped_child = crop_img(
+                Image.open(img_child), facial_landmarks_child[0], feature=feature
+            )
+
+            paternal_result = run_deepface(
+                load_img(cropped_father),
+                load_img(cropped_child),
+                feature,
+                model_name,
+                distance_metrics,
+            )
+            maternal_result = run_deepface(
+                load_img(cropped_mother),
+                load_img(cropped_child),
+                feature,
+                model_name,
+                distance_metrics,
+            )
+            simscore = distance2score(
+                paternal_result["distance"],
+                maternal_result["distance"],
+                distance_metrics,
+            )
+            results.append(
+                {
+                    "parent": "Father",
+                    "feature": feature,
+                    "similarity": simscore[0],
+                    "distance": paternal_result["distance"],
+                }
+            )
+            results.append(
+                {
+                    "parent": "Mother",
+                    "feature": feature,
+                    "similarity": simscore[1],
+                    "distance": maternal_result["distance"],
+                }
+            )
+    return results
+
+
+def compare_image(
+    img_father: any,
+    img_mother: any,
+    img_child: any,
+    features: list,
+    distance_metrics: str = "cosine",
+    model_name: str = "Facenet",
+) -> list:
     """
     This function run analysis to compare the parent-child images.
     After successful run of the comparisons, this function also plot a bar chart
@@ -171,6 +304,7 @@ def compare_image(
         img_father (any): streamlit file uploader obj for father
         img_mother (any): streamlit file uploader obj for mother
         img_child (any):  streamlit file uploader obj for child
+        features (list): list of the facial feature name for comparisons
         distance_metrics (str, optional): name of the distance metrics used for comparison. Defaults to "cosine".
         model_name (str, optional): name of the model used for facial detection. Defaults to "Facenet".
 
@@ -178,23 +312,37 @@ def compare_image(
         paternal_result, maternal_result: analysis results
     """
     # Run the analysis
+    results = []
     with st.spinner("Analyzing the images..."):
-        paternal_result = run_deepface(
-            img_father, img_child, model_name, distance_metrics
+        result_wf = compare_whole_face(
+            img_father,
+            img_mother,
+            img_child,
+            distance_metrics=distance_metrics,
+            model_name=model_name,
         )
-        maternal_result = run_deepface(
-            img_mother, img_child, model_name, distance_metrics
+        result_ff = compare_facial_features(
+            img_father,
+            img_mother,
+            img_child,
+            features,
+            distance_metrics=distance_metrics,
+            model_name=model_name,
         )
 
-    # Show the results
-    if paternal_result is not None and maternal_result is not None:
-        charts(paternal_result, maternal_result, distance_metrics=distance_metrics)
+    results = result_wf + result_ff
 
-        if maternal_result["distance"] < paternal_result["distance"]:
+    if results != {}:
+        # Plot the results
+        charts(results)
+        # Show the whole face result
+        if result_wf[0]["distance"] > result_wf[1]["distance"]:
             st.success("The child looks more like mother.")
         else:
             st.success("The child looks more like father.")
 
-        return maternal_result["distance"], paternal_result["distance"]
+        return results
     else:
-        st.error("Something wrong with either the pictures. Upload them again")
+        st.error(
+            "The faces are not detected properly. You can do better. Upload your best shots! 😜"
+        )

@@ -1,5 +1,7 @@
 import streamlit as st
-from images_utils import compare_image, show_img
+
+from images_utils import compare_image
+from images_utils import show_img
 
 
 def add_click():
@@ -14,6 +16,10 @@ if "clicks" not in st.session_state:
 
 # Display settings in sidebar
 with st.sidebar:
+    st.subheader("Choose the following to compare")
+    eyes = st.checkbox("Eyes", value=True)
+    mouth = st.checkbox("Mouth", value=True)
+    nose = st.checkbox("Nose", value=True)
     st.warning("Change the following settings only if you understand what they are!")
     distance_metrics = st.radio(
         "Distance Metrics",
@@ -40,10 +46,11 @@ img_father, img_mother, img_child = show_img(sample=st.session_state["clicks"] =
 
 # Compare the images and display the result
 if img_father is not None and img_mother is not None and img_child is not None:
-    compare_image(
+    _ = compare_image(
         img_father,
         img_mother,
         img_child,
+        [x for x in ["eyes", "mouth", "nose"] if eval(x)],
         distance_metrics=distance_metrics,
         model_name=model,
     )
