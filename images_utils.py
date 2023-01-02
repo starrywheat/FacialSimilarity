@@ -6,9 +6,20 @@ from deepface import DeepFace
 from deepface.commons import distance as dst
 from PIL import Image
 
-from facial_feature import crop_img
-from facial_feature import detect_facial_landmarks
-from facial_feature import load_img
+
+def load_img(img: any) -> np.array:
+    """
+    This function loads the uploaded img obj and turn to np.array
+
+    Returns:
+        img_arr (np.array): img in numpy array
+    """
+    if isinstance(img, Image.Image):
+        image_arr = np.array(img.convert("RGB"))
+    else:
+        image_loaded = Image.open(img)
+        image_arr = np.array(image_loaded.convert("RGB"))
+    return image_arr
 
 
 def run_deepface(
@@ -221,69 +232,69 @@ def compare_whole_face(
     return results
 
 
-def compare_facial_features(
-    img_father: any,
-    img_mother: any,
-    img_child: any,
-    features: list,
-    distance_metrics: str = "cosine",
-    model_name: str = "Facenet",
-):
-    results = []
-    if features != []:
-        # Detect the feature landmarks
-        facial_landmarks_father = detect_facial_landmarks(img_father)
-        facial_landmarks_mother = detect_facial_landmarks(img_mother)
-        facial_landmarks_child = detect_facial_landmarks(img_child)
+# def compare_facial_features(
+#     img_father: any,
+#     img_mother: any,
+#     img_child: any,
+#     features: list,
+#     distance_metrics: str = "cosine",
+#     model_name: str = "Facenet",
+# ):
+#     results = []
+#     if features != []:
+#         # Detect the feature landmarks
+#         facial_landmarks_father = detect_facial_landmarks(img_father)
+#         facial_landmarks_mother = detect_facial_landmarks(img_mother)
+#         facial_landmarks_child = detect_facial_landmarks(img_child)
 
-        # Get cropped image of the feature
-        for feature in features:
-            print(f"Running on {feature}")
-            cropped_father = crop_img(
-                Image.open(img_father), facial_landmarks_father[0], feature=feature
-            )
-            cropped_mother = crop_img(
-                Image.open(img_mother), facial_landmarks_mother[0], feature=feature
-            )
-            cropped_child = crop_img(
-                Image.open(img_child), facial_landmarks_child[0], feature=feature
-            )
-            paternal_result = run_deepface(
-                load_img(cropped_father),
-                load_img(cropped_child),
-                feature,
-                model_name,
-                distance_metrics,
-            )
-            maternal_result = run_deepface(
-                load_img(cropped_mother),
-                load_img(cropped_child),
-                feature,
-                model_name,
-                distance_metrics,
-            )
-            simscore = distance2score(
-                paternal_result["distance"],
-                maternal_result["distance"],
-                distance_metrics,
-            )
-            results.append(
-                {
-                    "parent": "Father",
-                    "feature": feature,
-                    "similarity": simscore[0],
-                    "distance": paternal_result["distance"],
-                }
-            )
-            results.append(
-                {
-                    "parent": "Mother",
-                    "feature": feature,
-                    "similarity": simscore[1],
-                    "distance": maternal_result["distance"],
-                }
-            )
-    return results
+#         # Get cropped image of the feature
+#         for feature in features:
+#             print(f"Running on {feature}")
+#             cropped_father = crop_img(
+#                 Image.open(img_father), facial_landmarks_father[0], feature=feature
+#             )
+#             cropped_mother = crop_img(
+#                 Image.open(img_mother), facial_landmarks_mother[0], feature=feature
+#             )
+#             cropped_child = crop_img(
+#                 Image.open(img_child), facial_landmarks_child[0], feature=feature
+#             )
+#             paternal_result = run_deepface(
+#                 load_img(cropped_father),
+#                 load_img(cropped_child),
+#                 feature,
+#                 model_name,
+#                 distance_metrics,
+#             )
+#             maternal_result = run_deepface(
+#                 load_img(cropped_mother),
+#                 load_img(cropped_child),
+#                 feature,
+#                 model_name,
+#                 distance_metrics,
+#             )
+#             simscore = distance2score(
+#                 paternal_result["distance"],
+#                 maternal_result["distance"],
+#                 distance_metrics,
+#             )
+#             results.append(
+#                 {
+#                     "parent": "Father",
+#                     "feature": feature,
+#                     "similarity": simscore[0],
+#                     "distance": paternal_result["distance"],
+#                 }
+#             )
+#             results.append(
+#                 {
+#                     "parent": "Mother",
+#                     "feature": feature,
+#                     "similarity": simscore[1],
+#                     "distance": maternal_result["distance"],
+#                 }
+#             )
+#     return results
 
 
 def compare_image(
