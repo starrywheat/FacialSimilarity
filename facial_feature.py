@@ -41,10 +41,10 @@ def crop_img(
     This function cropped the image to contain only the specified facial feature.
     The features supported are:
     individual -
-    'chin', 'left_eyebrow', 'right_eyebrow', 'nose_bridge',
-    'nose_tip', 'left_eye', 'right_eye', 'top_lip', 'bottom_lip',
+    'mouth', 'left_eyebrow', 'right_eyebrow', 'nose',
+    'left_eye', 'right_eye', 'inner_mouth', 'jaw'
     combined -
-    'eye', 'mouth', 'nose'
+    'eye', 'mouth'
 
     Args:
         image (Image.Image): input image
@@ -66,10 +66,8 @@ def crop_img(
             + face_landmarks["left_eyebrow"]
             + face_landmarks["right_eyebrow"]
         )
-    elif feature == "nose":
-        landmark_coords = face_landmarks["nose_bridge"] + face_landmarks["nose_tip"]
     elif feature == "mouth":
-        landmark_coords = face_landmarks["top_lip"] + face_landmarks["bottom_lip"]
+        landmark_coords = face_landmarks["mouth"] + face_landmarks["inner_mouth"]
     else:  # No such feature
         print("No such feature.")
         return None
@@ -87,8 +85,15 @@ def crop_img(
 
 def detect_facial_landmarks(img: any) -> list:
     """
-    This function detect the facial landmarks
+    This function detect the facial landmarks.
 
+    There are two libraries out there to do that:
+    1. dlib: It is a state of the art deep learning library for facial feature detection.
+            This is easy and quick to use, so we will use this here.
+    2. facial_recongition: It uses wrap dlib library for the detection and contains useful
+            functions to create the detection and do visulisation. However streamlit cloud don't support this
+            To learn more, check this out:
+            https://practicaldatascience.co.uk/machine-learning/how-to-perform-facial-recognition-in-python
     Args:
         img (any): image obj. Format supported are filepath (str), numpy array
 
