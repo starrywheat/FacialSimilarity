@@ -248,7 +248,6 @@ def compare_facial_features(
             cropped_child = crop_img(
                 Image.open(img_child), facial_landmarks_child[0], feature=feature
             )
-
             paternal_result = run_deepface(
                 load_img(cropped_father),
                 load_img(cropped_child),
