@@ -16,10 +16,12 @@ if "clicks" not in st.session_state:
 
 # Display settings in sidebar
 with st.sidebar:
-    st.subheader("Choose the following to compare")
-    eyes = st.checkbox("Eyes", value=True)
-    mouth = st.checkbox("Mouth", value=True)
-    nose = st.checkbox("Nose", value=True)
+    # streamlit cloud don't support this :(
+    # st.subheader("Choose the following to compare")
+    # eyes = st.checkbox("Eyes", value=False)
+    # mouth = st.checkbox("Mouth", value=False)
+    # nose = st.checkbox("Nose", value=False)
+    eyes, mouth, nose = False, False, False
     st.warning("Change the following settings only if you understand what they are!")
     distance_metrics = st.radio(
         "Distance Metrics",
@@ -40,9 +42,7 @@ with st.sidebar:
     url_ff = (
         "https://face-recognition.readthedocs.io/en/latest/readme.html#installation"
     )
-    st.markdown(
-        f"This app uses [deepface library]({url_df}) and [facial_recongition]({url_ff})."
-    )
+    st.markdown(f"This app uses [deepface library]({url_df}).")
 
 click = st.button("Try it yourself.", on_click=add_click)
 

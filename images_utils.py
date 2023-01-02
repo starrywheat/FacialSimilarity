@@ -320,16 +320,17 @@ def compare_image(
             distance_metrics=distance_metrics,
             model_name=model_name,
         )
-        result_ff = compare_facial_features(
-            img_father,
-            img_mother,
-            img_child,
-            features,
-            distance_metrics=distance_metrics,
-            model_name=model_name,
-        )
+        # streamlit cloud don't support this :(
+        # result_ff = compare_facial_features(
+        #     img_father,
+        #     img_mother,
+        #     img_child,
+        #     features,
+        #     distance_metrics=distance_metrics,
+        #     model_name=model_name,
+        # )
 
-    results = result_wf + result_ff
+    results = result_wf  # + result_ff
 
     if results != {}:
         # Plot the results
