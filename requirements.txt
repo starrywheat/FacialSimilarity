@@ -1,4 +1,4 @@
-deepface
+deepface==0.0.75
 pre-commit
 streamlit==1.13
 protobuf~=3.19
