@@ -12,5 +12,4 @@ docker run streamlit_app -p 8501:8501
 ```
 A new window will pop up in the browser to show you the app. Otherwise, go to `http://localhost:8501` in your browser to access the app.
 
-## Run it on cloud
-This app is deployed in Streamlit Cloud, you can access it [here](https://starrywheat-facialsimilarity-app-streamlit-cloud-8bnmz4.streamlit.app)
+
