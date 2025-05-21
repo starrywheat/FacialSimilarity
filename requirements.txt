@@ -1,6 +1,6 @@
 deepface==0.0.75
 pre-commit
-streamlit==1.13
+streamlit
 protobuf~=3.19
 plotly==5.11.0
 pandas
